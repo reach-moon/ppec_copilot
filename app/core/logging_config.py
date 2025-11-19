@@ -4,8 +4,14 @@ from logging.config import dictConfig
 import sys
 import json
 from datetime import datetime
+import os
 
 from config.settings import settings
+
+# 确保日志目录存在
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
 
 
 class JsonFormatter(logging.Formatter):
@@ -35,6 +41,11 @@ def setup_logging():
     配置应用的日志记录器
     根据环境自动选择合适的日志格式
     """
+    # 确保日志目录存在
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+        
     if settings.APP_ENV.lower() == "production":
         # 生产环境使用JSON格式日志
         log_format = "json"
@@ -62,32 +73,39 @@ def setup_logging():
                 "formatter": log_format,
                 "stream": sys.stdout,
             },
+            "file": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "formatter": log_format,
+                "filename": os.path.join(log_dir, "app.log"),
+                "maxBytes": 10485760,  # 10MB
+                "backupCount": 5,
+            },
         },
         "loggers": {
             # 配置根 logger
             "": {
-                "handlers": ["console"],
+                "handlers": ["console", "file"],
                 "level": settings.LOG_LEVEL.upper() if settings.LOG_LEVEL else default_level,
                 "propagate": True,
             },
             # 为特定库设置不同的日志级别，减少噪音
             "uvicorn.access": {
-                "handlers": ["console"],
+                "handlers": ["console", "file"],
                 "level": "INFO",
                 "propagate": False,
             },
             "httpx": {
-                "handlers": ["console"],
+                "handlers": ["console", "file"],
                 "level": "WARNING",  # 避免记录所有 HTTP 请求的 DEBUG 日志
                 "propagate": False,
             },
             "openai": {
-                "handlers": ["console"],
+                "handlers": ["console", "file"],
                 "level": "WARNING",  # 减少第三方库的日志噪音
                 "propagate": False,
             },
             "urllib3": {
-                "handlers": ["console"],
+                "handlers": ["console", "file"],
                 "level": "WARNING",  # 减少第三方库的日志噪音
                 "propagate": False,
             }

@@ -38,6 +38,7 @@ ppec_copilot/
 │       └── chat.html             # 聊天界面
 ├── config/                       # 配置文件
 │   └── settings.py               # 应用配置
+├── logs/                         # 日志文件目录
 ├── tests/                        # 测试文件
 │   ├── unit/                     # 单元测试
 │   ├── component/                # 组件测试

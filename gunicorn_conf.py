@@ -2,6 +2,11 @@
 import multiprocessing
 import os
 
+# 确保日志目录存在
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
 # --- Server Socket ---
 # 绑定 IP 和端口
 bind = os.environ.get("GUNICORN_BIND", "0.0.0.0:8000")
@@ -24,9 +29,9 @@ worker_class = os.environ.get("GUNICORN_WORKER_CLASS", "uvicorn.workers.UvicornW
 # 日志级别
 loglevel = os.environ.get("GUNICORN_LOGLEVEL", "info")
 # 访问日志文件的路径。'-' 表示输出到 stdout。
-accesslog = "-"
+accesslog = os.environ.get("GUNICORN_ACCESS_LOG", os.path.join(log_dir, "access.log"))
 # 错误日志文件的路径。'-' 表示输出到 stderr。
-errorlog = "-"
+errorlog = os.environ.get("GUNICORN_ERROR_LOG", os.path.join(log_dir, "error.log"))
 # 访问日志格式
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
