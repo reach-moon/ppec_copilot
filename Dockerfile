@@ -1,16 +1,30 @@
 # ---- Stage 1: Builder ----
 FROM python:3.12-slim as builder
 
+# 定义构建参数
+ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple/
+ARG PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
+
+# 设置环境变量
+ENV PIP_INDEX_URL=${PIP_INDEX_URL}
+ENV PIP_TRUSTED_HOST=${PIP_TRUSTED_HOST}
+
 WORKDIR /app
+
+# 配置 pip 使用镜像源
+RUN echo "[global]\nindex-url = ${PIP_INDEX_URL}\ntrusted-host = ${PIP_TRUSTED_HOST}\ntimeout = 120\nretries = 5" > /etc/pip.conf
+
+# 升级 pip
+RUN pip install --no-cache-dir --upgrade pip
 
 ENV PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100
+    PIP_DEFAULT_TIMEOUT=120
 
 # 复制依赖文件并安装
-# 因为 gunicorn 已经在 requirements.txt 中，它会被自动安装
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+# 使用简化版 requirements 文件以提高构建成功率
+COPY requirements-core.txt .
+RUN pip install --no-cache-dir --upgrade -r requirements-core.txt
 
 # ---- Stage 2: Runner ----
 FROM python:3.12-slim

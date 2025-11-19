@@ -9,6 +9,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # 使用国内镜像源加速构建
+        PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple/
+        PIP_TRUSTED_HOST: pypi.tuna.tsinghua.edu.cn
     container_name: ppec_copilot_app
     restart: always
     env_file:

@@ -112,7 +112,98 @@ cd /path/to/ppec_copilot
 
 ```bash
 # 构建应用 Docker 镜像
-docker-compose --build -d
+docker-compose build
+```
+
+### 解决构建问题
+
+如果在构建过程中遇到网络超时问题（如 `Read timed out`），请尝试以下解决方案：
+
+1. **使用国内镜像源**：
+   Dockerfile 已配置使用清华大学镜像源，如果仍有问题，可以尝试其他镜像源：
+   ```bash
+   # 使用阿里云镜像源
+   docker-compose build --build-arg PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/ --build-arg PIP_TRUSTED_HOST=mirrors.aliyun.com
+   
+   # 使用豆瓣镜像源
+   docker-compose build --build-arg PIP_INDEX_URL=https://pypi.douban.com/simple/ --build-arg PIP_TRUSTED_HOST=pypi.douban.com
+   ```
+
+2. **增加超时时间和重试次数**：
+   ```bash
+   # 增加超时时间到300秒
+   docker-compose build --build-arg PIP_DEFAULT_TIMEOUT=300
+   ```
+
+3. **分步构建**：
+   ```bash
+   # 先拉取基础镜像
+   docker pull python:3.12-slim
+   
+   # 再构建应用镜像
+   docker-compose build
+   ```
+
+4. **使用 --no-cache 选项重试构建**：
+   ```bash
+   # 不使用缓存重新构建
+   docker-compose build --no-cache
+   ```
+
+5. **使用简化依赖版本构建**：
+   项目提供了简化版的依赖文件 `requirements-core.txt`，只包含核心依赖，构建更快更稳定：
+   ```bash
+   # 修改 Dockerfile 使用 requirements-core.txt
+   # 然后重新构建
+   docker-compose build
+   ```
+
+6. **在服务器上配置全局镜像源**：
+   ```bash
+   # 创建 pip 配置目录
+   mkdir -p ~/.pip
+   
+   # 创建配置文件
+   cat > ~/.pip/pip.conf << EOF
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+trusted-host = pypi.tuna.tsinghua.edu.cn
+timeout = 120
+retries = 5
+EOF
+   
+   # 然后重新构建
+   docker-compose build
+   ```
+
+7. **检查服务器网络连接**：
+   ```bash
+   # 测试网络连接
+   ping pypi.tuna.tsinghua.edu.cn
+   
+   # 测试 HTTPS 连接
+   curl -v https://pypi.tuna.tsinghua.edu.cn/simple/
+   ```
+
+8. **如果问题仍然存在，尝试在本地构建后推送镜像**：
+   ```bash
+   # 在本地构建
+   docker-compose build
+   
+   # 给镜像打标签
+   docker tag ppec_copilot_app your-registry/ppec_copilot_app:latest
+   
+   # 推送到镜像仓库
+   docker push your-registry/ppec_copilot_app:latest
+   
+   # 在服务器上拉取镜像
+   docker pull your-registry/ppec_copilot_app:latest
+   ```
+
+如果以上方法都无法解决问题，请查看详细的错误日志：
+```bash
+# 查看完整的构建日志
+docker-compose build --progress=plain
 ```
 
 ## 运行服务
