@@ -1,5 +1,5 @@
 # ---- Stage 1: Builder ----
-FROM python:3.11-slim as builder
+FROM python:3.12-slim as builder
 
 WORKDIR /app
 
@@ -26,10 +26,11 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/gunicorn /usr/local/bin/gunicorn
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 
-# 复制应用代码和新的 Gunicorn 配置文件
+# 复制应用代码和配置文件
 COPY ./app ./app
 COPY ./config ./config
 COPY gunicorn_conf.py .  # <--- 复制 Gunicorn 配置文件
+COPY .env .              # <--- 复制环境变量文件
 
 # 暴露端口
 EXPOSE 8000

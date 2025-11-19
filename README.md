@@ -77,7 +77,7 @@ ppec_copilot/
 
 ### 环境要求
 
-- Python 3.11+
+- Python 3.12+
 - Docker (可选，用于依赖服务)
 
 ### 安装依赖
@@ -158,6 +158,7 @@ pytest tests/e2e/
 
 - [架构分析](file:///D:/WorkSpaces/GitHub/reach-moon/ppec_copilot/ARCHITECTURE_ANALYSIS.md) - 系统架构详细说明
 - [测试框架](file:///D:/WorkSpaces/GitHub/reach-moon/ppec_copilot/TESTING_FRAMEWORK.md) - 测试策略和框架说明
+- [部署指南](file:///D:/WorkSpaces/GitHub/reach-moon/ppec_copilot/DEPLOYMENT.md) - 详细部署说明和操作指南
 
 ## 许可证
 
