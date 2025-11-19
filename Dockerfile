@@ -43,8 +43,8 @@ COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 # 复制应用代码和配置文件
 COPY ./app ./app
 COPY ./config ./config
-COPY gunicorn_conf.py .  # <--- 复制 Gunicorn 配置文件
-COPY .env .              # <--- 复制环境变量文件
+COPY ./gunicorn_conf.py ./gunicorn_conf.py
+COPY ./.env ./.env
 
 # 暴露端口
 EXPOSE 8000
