@@ -53,6 +53,7 @@ ppec_copilot/
 ├── nginx.conf                    # Nginx 配置
 ├── pytest.ini                    # Pytest 配置
 ├── requirements.txt              # Python 依赖
+├── streamlit_client.py           # Streamlit 客户端
 └── TESTING_FRAMEWORK.md          # 测试框架文档
 ```
 
@@ -63,13 +64,14 @@ ppec_copilot/
 - **记忆管理**: 集成 Mem0 实现对话历史管理和会话回滚
 - **流式响应**: 支持服务端推送事件 (SSE) 的实时响应
 - **可扩展架构**: 模块化设计，易于添加新功能和工具
+- **多种前端界面**: 提供 Web 和 Streamlit 客户端
 
 ## 技术栈
 
 - **后端框架**: FastAPI
 - **AI 框架**: LangChain / LangGraph
 - **向量数据库**: Qdrant (通过 Mem0)
-- **前端技术**: HTML/CSS/JavaScript (原生实现)
+- **前端技术**: HTML/CSS/JavaScript (原生实现) 和 Streamlit
 - **容器化**: Docker
 - **部署**: Gunicorn + Nginx
 
@@ -100,26 +102,100 @@ cp .env.example .env
 开发模式：
 
 ```bash
+# 在 Unix/Linux/macOS 系统上
 uvicorn app.api.main:app --reload
+
+# 在 Windows 系统上或使用项目脚本
+python run_local.py --reload
+
+# 或使用 Gunicorn（仅 Unix/Linux/macOS）
+gunicorn -c gunicorn_conf.py app.api.main:app
 ```
 
 生产模式：
 
 ```bash
+# 使用 Gunicorn（仅 Unix/Linux/macOS）
 gunicorn -c gunicorn_conf.py app.api.main:app
 ```
 
 ### Docker 部署
 
+构建并启动所有服务：
+
 ```bash
 docker-compose up -d
 ```
+
+这将启动以下服务：
+- Nginx 反向代理（端口 80）
+- PPEC Copilot 应用
+- Qdrant 向量数据库（端口 6333）
+
+访问应用：
+- 通过 Nginx: http://localhost
+- 直接访问应用: http://localhost:8000
+- Qdrant 控制台: http://localhost:6333/dashboard
+
+查看日志：
+
+```bash
+docker-compose logs -f
+```
+
+停止所有服务：
+
+```bash
+docker-compose down
+```
+
+## 前端界面
+
+### Web 界面
+
+项目包含一个基于 HTML/CSS/JavaScript 的原生 Web 界面，可以直接通过浏览器访问：
+
+```
+http://localhost:8000
+```
+
+该界面提供以下功能：
+- 实时聊天界面
+- 支持多种后端接口选择（ragflow-stream、qwen-stream、chat-completions）
+- 分别显示"深度思考"和"正常回答"内容
+- 可配置后端 URL、模型名称等参数
+- 流式响应显示，支持实时更新
+
+### Streamlit 客户端
+
+项目还提供了一个基于 Streamlit 的客户端界面，可以通过以下命令启动：
+
+```bash
+streamlit run streamlit_client.py
+```
+
+Streamlit 客户端功能：
+- 现代化的聊天界面
+- 支持多种后端接口选择
+- 实时流式响应显示
+- 分别显示"深度思考"和"正常回答"内容
+- 可配置会话 ID、模型名称等参数
+- 支持启用/禁用流式传输
+- 支持清空聊天记录
 
 ## API 接口
 
 - `POST /api/v1/chat` - 聊天接口
 - `POST /api/v1/revert` - 回滚接口
 - `GET /health` - 健康检查
+
+### 流式接口
+
+- `POST /api/v1/ragflow-stream` - 直接代理 RAGFlow API 的流式接口
+- `POST /api/v1/qwen-stream` - 直接使用 Qwen 模型的流式接口
+- `POST /api/v1/chat-completions` - 统一的 OpenAI 兼容接口
+
+所有流式接口都遵循 OpenAI API 标准格式，支持 Server-Sent Events (SSE) 协议。
 
 ## 架构说明
 

@@ -46,10 +46,40 @@ COPY ./config ./config
 COPY ./gunicorn_conf.py ./gunicorn_conf.py
 COPY ./.env ./.env
 
+# 如果 .env 文件不存在，则创建一个默认的
+RUN if [ ! -f .env ]; then \
+        echo "# Default .env file for PPEC Copilot" > .env && \
+        echo "APP_ENV=development" >> .env && \
+        echo "PROJECT_NAME=PPEC Copilot" >> .env && \
+        echo "API_V1_PREFIX=/api/v1" >> .env && \
+        echo "LOG_LEVEL=INFO" >> .env && \
+        echo "# LLM Configuration" >> .env && \
+        echo "ONE_API_BASE_URL=http://localhost:8000/v1" >> .env && \
+        echo "ONE_API_KEY=sk-placeholder" >> .env && \
+        echo "ONE_API_MODEL=gpt-3.5-turbo" >> .env && \
+        echo "ONE_API_EMBEDDING_KEY=sk-placeholder" >> .env && \
+        echo "ONE_API_EMBEDDING_MODEL=text-embedding-3-small" >> .env && \
+        echo "ONE_API_EMBEDDING_DIMS=1536" >> .env && \
+        echo "# Mem0 Configuration" >> .env && \
+        echo "MEM_0_VECTOR_STORE_PROVIDER=qdrant" >> .env && \
+        echo "MEM_0_VECTOR_STORE_HOST=qdrant" >> .env && \
+        echo "MEM_0_VECTOR_STORE_PORT=6333" >> .env && \
+        echo "# Graph Store Configuration" >> .env && \
+        echo "GRAPH_STORE=neo4j" >> .env && \
+        echo "GRAPH_STORE_URL=neo4j://localhost:7687" >> .env && \
+        echo "GRAPH_STORE_USER=neo4j" >> .env && \
+        echo "GRAPH_STORE_PASSWORD=neo4j" >> .env && \
+        echo "# RAGFlow Configuration" >> .env && \
+        echo "RAGFLOW_API_URL=http://localhost:1080/api/v1/chats_openai/chat-id" >> .env && \
+        echo "RAGFLOW_API_KEY=ragflow-placeholder" >> .env; \
+    fi
+
+# 创建日志目录
+RUN mkdir -p logs
+
 # 暴露端口
 EXPOSE 8000
 
-# 【核心变化】使用 Gunicorn 和我们的配置文件作为启动命令
-# -c: 指定配置文件的路径
-# app.api.main:app: 指向 FastAPI 应用实例的路径
+# 提供一个调试模式的启动命令
+# 使用 gunicorn 启动应用
 CMD ["gunicorn", "-c", "gunicorn_conf.py", "app.api.main:app"]

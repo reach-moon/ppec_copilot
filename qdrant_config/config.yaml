@@ -1,0 +1,38 @@
+# Qdrant configuration file
+# This sets the default vector size for collections
+
+collections:
+  # Default parameters for new collections
+  defaults:
+    vectors:
+      # Set default vector size to 1024 to match the embedding model
+      size: 1024
+      distance: Cosine
+      hnsw_config:
+        ef_construct: 100
+        m: 16
+      quantization_config:
+        product:
+          compression: x64
+          always_ram: true
+
+service:
+  # Host to bind the service on
+  host: 0.0.0.0
+  # HTTP port
+  http_port: 6333
+  # gRPC port
+  grpc_port: 6334
+
+storage:
+  # Storage type to use
+  # Options: in_memory, rocksdb
+  type: rocksdb
+  # Path to the storage directory
+  path: ./storage
+
+performance:
+  # Number of parallel threads to use
+  max_search_threads: 4
+  # Max number of operations in batch for batch update APIs
+  update_rate_limit: 100

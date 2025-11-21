@@ -29,6 +29,7 @@ class GraphState(TypedDict):
     """
     session_id: str
     original_input: str
+    turn_id: Optional[str]
 
     # 当前正在处理的 Plan
     plan: Optional[Plan] = None

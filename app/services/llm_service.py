@@ -14,9 +14,9 @@ def get_llm() -> ChatOpenAI:
     """
     return ChatOpenAI(
         model=settings.ONE_API_MODEL,  # 使用配置的模型
-        temperature=0,
         base_url=settings.ONE_API_BASE_URL,
         api_key=settings.ONE_API_KEY,
+        temperature=0,
         max_retries=2, # 可选：增加重试
     )
 

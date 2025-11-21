@@ -196,3 +196,132 @@ class TestRevertAPI:
         # 2. Test adding memories
         # 3. Test retrieving memories
         # 4. Test deleting memories (for revert functionality)
+        pass
+
+
+class TestRagflowProxy:
+    """E2E tests for the /ragflow-stream proxy endpoint with mocked upstream"""
+
+    def test_ragflow_proxy_passthrough(self):
+        """Verify that the endpoint correctly streams responses from RAGFlow API"""
+        # Simple async context manager to mock httpx response
+        class AsyncMockResponse:
+            def __init__(self):
+                self.status_code = 200
+                self.headers = {"content-type": "text/event-stream"}
+            async def aiter_bytes(self):
+                yield b"data: {\"content\": \"Hello\"}\n\n"
+                yield b"data: {\"content\": \" World\"}\n\n"
+                yield b"data: [DONE]\n\n"
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, exc_type, exc_val, exc_tb):
+                pass
+
+        def mock_stream(*args, **kwargs):
+            return AsyncMockResponse()
+
+        with patch('httpx.AsyncClient.stream', new=mock_stream):
+            resp = client.post(
+                "/api/v1/ragflow-stream",
+                json={
+                    "session_id": "test_session",
+                    "turn_id": "test_turn",
+                    "message": "Hello"
+                }
+            )
+            assert resp.status_code == 200
+            assert "text/event-stream" in resp.headers.get("content-type", "")
+            assert "no-cache" in resp.headers.get("cache-control", "")
+            assert resp.text.strip().startswith("data:")
+            assert 'data: {"content": "Hello"}' in resp.text  # Verify first chunk
+            assert 'data: {"content": " World"}' in resp.text  # Verify second chunk
+            assert 'data: [DONE]' in resp.text  # Verify end marker
+
+    def test_ragflow_proxy_error_passthrough(self):
+        """Verify non-200 status and error responses are passed through"""
+        # Simple async context manager to mock error response
+        class AsyncMockErrorResponse:
+            def __init__(self):
+                self.status_code = 503
+                self.headers = {"content-type": "application/json"}
+            async def aiter_bytes(self):
+                yield b'{"error": "upstream unavailable"}'
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, exc_type, exc_val, exc_tb):
+                pass
+
+        def mock_stream(*args, **kwargs):
+            return AsyncMockErrorResponse()
+
+        with patch('httpx.AsyncClient.stream', new=mock_stream):
+            resp = client.post(
+                "/api/v1/ragflow-stream",
+                json={
+                    "session_id": "test_session",
+                    "turn_id": "test_turn",
+                    "message": "Hello"
+                }
+            )
+            assert resp.status_code == 503
+            assert "application/json" in resp.headers.get("content-type", "")
+            assert "upstream unavailable" in resp.text
+
+    def test_ragflow_proxy_request_structure(self):
+        """Verify that the proxy correctly formats requests to RAGFlow API"""
+        captured_url = None
+        captured_headers = None
+        captured_payload = None
+
+        # Simple async context manager to mock httpx response
+        class AsyncMockResponse:
+            def __init__(self):
+                self.status_code = 200
+                self.headers = {"content-type": "text/event-stream"}
+            async def aiter_bytes(self):
+                yield b"data: [DONE]\n\n"
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, exc_type, exc_val, exc_tb):
+                pass
+
+        def mock_stream(*args, **kwargs):
+            """Return MockResponse directly as async context manager, capturing request data"""
+            nonlocal captured_url, captured_headers, captured_payload
+
+            # Extract URL from args or kwargs (adjust for bound method self argument)
+            if len(args) >= 3:
+                captured_url = args[2]  # Method, URL, etc. (self is args[0])
+            elif "url" in kwargs:
+                captured_url = kwargs["url"]
+            elif len(args) >= 2:
+                captured_url = args[1]  # Fallback for unbound methods
+            else:
+                captured_url = ""
+            captured_headers = kwargs.get("headers")
+            captured_payload = kwargs.get("json")
+            return AsyncMockResponse()
+
+        with patch('httpx.AsyncClient.stream', new=mock_stream):
+            with patch('config.settings.settings.RAGFLOW_API_URL', new='http://test-ragflow-api:1080/api/v1/chats_openai/test-chat-id'):
+                with patch('config.settings.settings.RAGFLOW_API_KEY', new='test-api-key'):
+                    client.post(
+                        "/api/v1/ragflow-stream",
+                        json={
+                            "session_id": "test_session",
+                            "turn_id": "test_turn",
+                            "message": "Hello world"
+                        }
+                    )
+
+                    # Verify the request structure
+                    assert captured_url == "http://test-ragflow-api:1080/api/v1/chats_openai/test-chat-id/chat/completions"
+                    assert "Content-Type" in captured_headers
+                    assert captured_headers["Content-Type"] == "application/json"
+                    assert "Authorization" in captured_headers
+                    assert captured_headers["Authorization"] == "Bearer test-api-key"
+                    assert captured_payload["messages"][1]["content"] == "Hello world"
+                    assert captured_payload["stream"] == True
+                    assert "extra_body" in captured_payload
+                    assert captured_payload["extra_body"]["reference"] == True

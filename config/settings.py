@@ -39,7 +39,11 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # 模型配置，告诉 pydantic-settings 从 .env 文件加载
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        env_file_encoding='utf-8',
+        extra='ignore'  # 忽略额外的字段，这样就不会因为 Gunicorn 配置而报错
+    )
 
 @lru_cache
 def get_settings() -> Settings:

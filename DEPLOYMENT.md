@@ -206,6 +206,38 @@ EOF
 docker-compose build --progress=plain
 ```
 
+## 本地开发和测试
+
+### Windows 环境注意事项
+
+由于 Gunicorn 依赖于 Unix 特定的系统调用，在 Windows 环境下无法直接运行。在本地开发时，请使用 Uvicorn 代替 Gunicorn：
+
+```bash
+# 使用 Uvicorn 运行应用（开发模式）
+uvicorn app.api.main:app --reload --host 127.0.0.1 --port 8000
+
+# 或者使用项目提供的脚本
+python run_local.py --reload
+```
+
+### 本地测试脚本
+
+项目包含一个本地测试脚本 [run_local.py](file:///D:/WorkSpaces/GitHub/reach-moon/ppec_copilot/run_local.py)，可用于在本地运行应用：
+
+```bash
+# 给脚本添加执行权限（Unix/Linux/macOS）
+chmod +x run_local.py
+
+# 运行应用
+python run_local.py
+
+# 运行应用（开发模式，带自动重载）
+python run_local.py --reload
+
+# 指定主机和端口
+python run_local.py --host 0.0.0.0 --port 8001
+```
+
 ## 运行服务
 
 ### 启动服务
@@ -280,6 +312,23 @@ docker-compose down
 docker-compose up -d
 ```
 
+### 接口测试
+
+项目包含一个测试脚本 [test_api.sh](file:///D:/WorkSpaces/GitHub/reach-moon/ppec_copilot/test_api.sh)，可用于在服务器上快速测试部署的接口：
+
+```bash
+# 给脚本添加执行权限
+chmod +x test_api.sh
+
+# 运行所有测试
+./test_api.sh
+
+# 运行特定测试
+./test_api.sh health    # 测试健康检查接口
+./test_api.sh chat      # 测试聊天接口
+./test_api.sh root      # 测试根路径
+```
+
 ### 备份和恢复
 
 ```bash
@@ -349,19 +398,49 @@ cat logs/app.log
    docker-compose logs qdrant
    ```
 
-4. **内存不足**
-   - 检查服务器内存使用情况：
-     ```bash
-     free -h
-     ```
-   - 调整 docker-compose.yml 中的服务资源限制
+4. **Gunicorn Worker 启动失败**
+   当您看到类似于 "Worker failed to boot" 的错误时，可以使用以下调试方法：
+   ```bash
+   # 使用调试模式启动简化版应用
+   docker-compose -f docker-compose.debug.yml up
+   
+   # 或者进入容器手动运行应用
+   docker-compose exec app python -m app.api.simple_main
+   ```
 
-5. **权限问题**
-   - 确保当前用户在 docker 组中
-   - 检查文件权限：
-     ```bash
-     ls -la .env
-     ```
+### 调试方法
+
+项目提供了多种调试工具来帮助诊断问题：
+
+1. **使用调试脚本**：
+   ```bash
+   # 给脚本添加执行权限
+   chmod +x debug_docker.sh
+   
+   # 检查环境
+   ./debug_docker.sh check
+   
+   # 构建镜像
+   ./debug_docker.sh build
+   
+   # 启动调试服务
+   ./debug_docker.sh debug
+   
+   # 查看调试日志
+   ./debug_docker.sh dlogs
+   ```
+
+2. **使用简化版应用**：
+   项目包含一个简化版的入口文件 [app/api/simple_main.py](file:///D:/WorkSpaces/GitHub/reach-moon/ppec_copilot/app/api/simple_main.py)，可以用来排除复杂配置导致的问题。
+
+3. **手动运行应用**：
+   ```bash
+   # 进入容器
+   docker-compose exec app bash
+   
+   # 直接运行应用
+   python -m app.api.simple_main
+   ```
 
 ### 性能调优
 

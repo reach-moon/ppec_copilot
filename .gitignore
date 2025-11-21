@@ -92,6 +92,10 @@ logs/
 # pip 缓存
 .pip/pip.conf
 
+# 测试脚本
+test_api.sh
+debug_docker.sh
+
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
 #   intended to run in multiple environments; otherwise, check them in:
