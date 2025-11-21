@@ -161,7 +161,8 @@ http://localhost:8000
 
 该界面提供以下功能：
 - 实时聊天界面
-- 支持多种后端接口选择（ragflow-stream、qwen-stream、chat-completions）
+- 支持多种后端接口选择（ragflow-stream、qwen-stream、chat/completions）
+- 支持标准 OpenAI 接口格式（/api/v1/chat/completions）
 - 分别显示"深度思考"和"正常回答"内容
 - 可配置后端 URL、模型名称等参数
 - 流式响应显示，支持实时更新
@@ -193,7 +194,7 @@ Streamlit 客户端功能：
 
 - `POST /api/v1/ragflow-stream` - 直接代理 RAGFlow API 的流式接口
 - `POST /api/v1/qwen-stream` - 直接使用 Qwen 模型的流式接口
-- `POST /api/v1/chat-completions` - 统一的 OpenAI 兼容接口
+- `POST /api/v1/chat/completions` - 统一的 OpenAI 兼容接口
 
 所有流式接口都遵循 OpenAI API 标准格式，支持 Server-Sent Events (SSE) 协议。
 

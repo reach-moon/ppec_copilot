@@ -179,7 +179,7 @@ class TestRevertAPI:
         
         # In the future, when /revert is implemented, we would test:
         # 1. Creating memories with multiple chat interactions
-        # 2. Calling /revert with a specific turn_id
+        # 2. Calling /revert with a specific message_id
         # 3. Verifying that the memory state is correctly reverted
         pass
 
@@ -226,7 +226,7 @@ class TestRagflowProxy:
                 "/api/v1/ragflow-stream",
                 json={
                     "session_id": "test_session",
-                    "turn_id": "test_turn",
+                    "message_id": "test_turn",
                     "message": "Hello"
                 }
             )
@@ -260,7 +260,7 @@ class TestRagflowProxy:
                 "/api/v1/ragflow-stream",
                 json={
                     "session_id": "test_session",
-                    "turn_id": "test_turn",
+                    "message_id": "test_turn",
                     "message": "Hello"
                 }
             )
@@ -310,7 +310,7 @@ class TestRagflowProxy:
                         "/api/v1/ragflow-stream",
                         json={
                             "session_id": "test_session",
-                            "turn_id": "test_turn",
+                            "message_id": "test_turn",
                             "message": "Hello world"
                         }
                     )

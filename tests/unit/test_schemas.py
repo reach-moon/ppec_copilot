@@ -90,9 +90,9 @@ class TestPlan:
             steps=[]
         )
         
-        # Verify turn_id is auto-generated
-        assert isinstance(plan.turn_id, str)
-        assert uuid.UUID(plan.turn_id)  # Should be a valid UUID
+        # Verify message_id is auto-generated
+        assert isinstance(plan.message_id, str)
+        assert uuid.UUID(plan.message_id)  # Should be a valid UUID
         
         assert plan.goal == "Test goal"
         assert plan.steps == []
@@ -106,25 +106,25 @@ class TestPlan:
         ]
         
         plan = Plan(
-            turn_id="test-turn-id",
+            message_id="test-turn-id",
             goal="Test goal",
             steps=steps,
             final_summary="Test summary"
         )
         
-        assert plan.turn_id == "test-turn-id"
+        assert plan.message_id == "test-turn-id"
         assert plan.goal == "Test goal"
         assert len(plan.steps) == 2
         assert plan.final_summary == "Test summary"
 
-    def test_plan_auto_turn_id(self):
-        """Test that Plan auto-generates unique turn_id"""
+    def test_plan_auto_message_id(self):
+        """Test that Plan auto-generates unique message_id"""
         plan1 = Plan(goal="Test goal 1", steps=[])
         plan2 = Plan(goal="Test goal 2", steps=[])
         
-        assert plan1.turn_id != plan2.turn_id
-        assert uuid.UUID(plan1.turn_id)
-        assert uuid.UUID(plan2.turn_id)
+        assert plan1.message_id != plan2.message_id
+        assert uuid.UUID(plan1.message_id)
+        assert uuid.UUID(plan2.message_id)
 
     def test_plan_missing_required_fields(self):
         """Test that Plan raises ValidationError when required fields are missing"""
@@ -142,7 +142,7 @@ class TestPlan:
         ]
         
         plan = Plan(
-            turn_id="test-turn-id",
+            message_id="test-turn-id",
             goal="Test goal",
             steps=steps,
             final_summary="Test summary"
@@ -151,7 +151,7 @@ class TestPlan:
         # Serialize to dict
         plan_dict = plan.model_dump()
         expected_dict = {
-            "turn_id": "test-turn-id",
+            "message_id": "test-turn-id",
             "goal": "Test goal",
             "steps": [
                 {
@@ -173,7 +173,7 @@ class TestPlan:
         
         # Deserialize from dict
         plan_from_dict = Plan(**plan_dict)
-        assert plan_from_dict.turn_id == plan.turn_id
+        assert plan_from_dict.message_id == plan.message_id
         assert plan_from_dict.goal == plan.goal
         assert plan_from_dict.final_summary == plan.final_summary
         assert len(plan_from_dict.steps) == len(plan.steps)

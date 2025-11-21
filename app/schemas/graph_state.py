@@ -14,7 +14,7 @@ class PlanStep(BaseModel):
 
 class Plan(BaseModel):
     """定义整个任务计划，它代表了一次完整的用户交互（Turn）"""
-    turn_id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="本次交互的唯一ID，作为回滚的锚点。")
+    message_id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="本次交互的唯一ID，作为回滚的锚点。")
     goal: str = Field(description="用户的原始最终目标。")
     steps: List[PlanStep] = Field(description="为实现目标而分解出的步骤列表。")
     final_summary: Optional[str] = Field(default=None, description="计划全部完成后，给用户的最终总结性答复。")
@@ -29,7 +29,7 @@ class GraphState(TypedDict):
     """
     session_id: str
     original_input: str
-    turn_id: Optional[str]
+    message_id: Optional[str]
 
     # 当前正在处理的 Plan
     plan: Optional[Plan] = None
