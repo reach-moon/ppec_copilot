@@ -1,5 +1,4 @@
 # gunicorn_conf.py
-import multiprocessing
 import os
 
 # 确保日志目录存在

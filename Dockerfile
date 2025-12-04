@@ -44,7 +44,7 @@ COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 COPY ./app ./app
 COPY ./config ./config
 COPY ./gunicorn_conf.py ./gunicorn_conf.py
-COPY ./.env.docker ./.env
+COPY ./.env ./.env
 
 # 创建日志目录
 RUN mkdir -p logs

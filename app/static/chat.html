@@ -91,7 +91,7 @@
         <h3>⚙️ 设置</h3>
         <label>
             Backend API URL:
-            <input type="text" id="base-url" value="http://127.0.0.1:8000" />
+            <input type="text" id="base-url" value="" placeholder="Leave empty to use current host" />
         </label>
         <label>
             Endpoint:
@@ -154,7 +154,12 @@
             const message = messageInput.value.trim();
             if (!message) return;
 
-            const baseUrl = baseUrlInput.value;
+            let baseUrl = baseUrlInput.value;
+            // If base URL is empty, use current host
+            if (!baseUrl) {
+                const currentUrl = new URL(window.location.href);
+                baseUrl = currentUrl.origin;
+            }
             const endpoint = endpointSelect.value;
             const modelName = modelNameInput.value;
             const sessionId = sessionIdInput.value;

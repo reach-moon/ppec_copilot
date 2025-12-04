@@ -16,7 +16,7 @@ services:
     container_name: ppec_copilot_app
     restart: always
     env_file:
-      - .env.docker
+      - .env
     networks:
       - ppec_network
     depends_on:
