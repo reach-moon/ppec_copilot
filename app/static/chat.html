@@ -91,14 +91,14 @@
         <h3>⚙️ 设置</h3>
         <label>
             Backend API URL:
-            <input type="text" id="base-url" value="http://127.0.0.1:8000" />
+            <input type="text" id="base-url" value="" placeholder="Leave empty to use current host" />
         </label>
         <label>
             Endpoint:
             <select id="endpoint">
-                <option value="/api/v1/ragflow-stream">RAGFlow Stream</option>
-                <option value="/api/v1/qwen-stream">Qwen Stream</option>
-                <option value="/api/v1/chat-completions" selected>Unified Chat Completions</option>
+                <option value="/api/v1/chat/completions" selected>/chat/completions</option>
+                <option value="/api/v1/ragflow-stream">ragflow-stream</option>
+                <option value="/api/v1/llm-stream">llm-stream</option>
             </select>
         </label>
         <label>
@@ -154,7 +154,12 @@
             const message = messageInput.value.trim();
             if (!message) return;
 
-            const baseUrl = baseUrlInput.value;
+            let baseUrl = baseUrlInput.value;
+            // If base URL is empty, use current host
+            if (!baseUrl) {
+                const currentUrl = new URL(window.location.href);
+                baseUrl = currentUrl.origin;
+            }
             const endpoint = endpointSelect.value;
             const modelName = modelNameInput.value;
             const sessionId = sessionIdInput.value;
@@ -171,8 +176,8 @@
 
             try {
                 let requestBody;
-                if (endpoint === '/api/v1/chat-completions') {
-                    // New unified format
+                if (endpoint === '/api/v1/chat/completions' || endpoint === '/api/v1/ragflow-stream' || endpoint === '/api/v1/llm-stream') {
+                    // New unified format for all modern endpoints
                     requestBody = {
                         model: modelName,
                         messages: [
@@ -181,7 +186,7 @@
                         stream: true
                     };
                 } else {
-                    // Legacy format
+                    // Legacy format for backward compatibility
                     requestBody = {
                         session_id: sessionId,
                         message: message

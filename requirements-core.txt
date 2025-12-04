@@ -1,7 +1,10 @@
-# Core dependencies for PPEC Copilot
+# Core dependencies for PPEC Copilot Docker deployment
+# Web framework and server
 fastapi==0.121.2
-uvicorn==0.38.0
+uvicorn[standard]==0.38.0
 gunicorn==23.0.0
+
+# Data validation and settings
 pydantic==2.11.10
 pydantic-settings==2.12.0
 python-multipart==0.0.20
@@ -12,16 +15,20 @@ langchain==1.0.7
 langchain-core==1.0.5
 langchain-openai==1.0.3
 langgraph==1.0.3
-sydney-py
 
-# Mem0 for memory management
-mem0ai==1.0.1
+streamlit
 
 # HTTP client
 httpx==0.28.1
 
-# Qdrant client for vector storage
+# Memory management
+mem0ai==1.0.1
+
+# Vector storage
 qdrant-client==1.15.1
+
+# Required for OpenAI API compatibility
+openai==2.8.0
 
 # Testing
 pytest==9.0.1

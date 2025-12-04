@@ -35,7 +35,7 @@ class TestMem0Service:
         
         # Create a test plan with final summary
         plan = Plan(
-            turn_id="test_turn_1",
+            message_id="test_turn_1",
             goal="Test user goal",
             steps=[],
             final_summary="Test AI response"
@@ -50,7 +50,7 @@ class TestMem0Service:
             user_id="test_session_id",
             metadata={
                 "plan": plan.model_dump_json(),
-                "turn_id": "test_turn_1"
+                "message_id": "test_turn_1"
             }
         )
 
@@ -61,7 +61,7 @@ class TestMem0Service:
         
         # Create a test plan without final summary
         plan = Plan(
-            turn_id="test_turn_1",
+            message_id="test_turn_1",
             goal="Test user goal",
             steps=[]
             # No final_summary field
@@ -83,7 +83,7 @@ class TestMem0Service:
         
         # Create a test plan
         plan = Plan(
-            turn_id="test_turn_1",
+            message_id="test_turn_1",
             goal="Test user goal",
             steps=[],
             final_summary="Test AI response"
@@ -105,7 +105,7 @@ class TestMem0Service:
             {
                 "metadata": {
                     "plan": Plan(
-                        turn_id="test_turn_1",
+                        message_id="test_turn_1",
                         goal="Test user goal 1",
                         steps=[],
                         final_summary="Test AI response 1"
@@ -115,7 +115,7 @@ class TestMem0Service:
             {
                 "metadata": {
                     "plan": Plan(
-                        turn_id="test_turn_2",
+                        message_id="test_turn_2",
                         goal="Test user goal 2",
                         steps=[],
                         final_summary="Test AI response 2"
@@ -184,9 +184,9 @@ class TestMem0Service:
         
         # Mock the client's get_all response
         mock_client.get_all.return_value = [
-            {"id": "mem_1", "metadata": {"turn_id": "turn_1"}},
-            {"id": "mem_2", "metadata": {"turn_id": "turn_2"}},
-            {"id": "mem_3", "metadata": {"turn_id": "turn_3"}},
+            {"id": "mem_1", "metadata": {"message_id": "turn_1"}},
+            {"id": "mem_2", "metadata": {"message_id": "turn_2"}},
+            {"id": "mem_3", "metadata": {"message_id": "turn_3"}},
         ]
         
         # Execute the method
@@ -205,8 +205,8 @@ class TestMem0Service:
         
         # Mock the client's get_all response
         mock_client.get_all.return_value = [
-            {"id": "mem_1", "metadata": {"turn_id": "turn_1"}},
-            {"id": "mem_2", "metadata": {"turn_id": "turn_2"}},
+            {"id": "mem_1", "metadata": {"message_id": "turn_1"}},
+            {"id": "mem_2", "metadata": {"message_id": "turn_2"}},
         ]
         
         # Execute the method and expect ValueError
@@ -226,8 +226,8 @@ class TestMem0Service:
         
         # Mock the client's get_all response
         mock_client.get_all.return_value = [
-            {"id": "mem_1", "metadata": {"turn_id": "turn_1"}},
-            {"id": "mem_2", "metadata": {"turn_id": "turn_2"}},
+            {"id": "mem_1", "metadata": {"message_id": "turn_1"}},
+            {"id": "mem_2", "metadata": {"message_id": "turn_2"}},
         ]
         
         # Execute the method

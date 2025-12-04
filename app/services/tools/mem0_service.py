@@ -16,7 +16,7 @@ class Mem0Service:
         将一个已完成的计划作为单条记忆存入 Mem0。
         """
         if not plan.final_summary:
-            logger.warning(f"Plan {plan.turn_id} has no final summary. Not adding to memory.")
+            logger.warning(f"Plan {plan.message_id} has no final summary. Not adding to memory.")
             return
 
         try:
@@ -30,9 +30,9 @@ class Mem0Service:
             self._client.add(
                 memory_content,
                 user_id=session_id,
-                metadata={"plan": plan_json, "turn_id": plan.turn_id}
+                metadata={"plan": plan_json, "message_id": plan.message_id}
             )
-            logger.info(f"Added completed plan {plan.turn_id} to memory for session {session_id}.")
+            logger.info(f"Added completed plan {plan.message_id} to memory for session {session_id}.")
         except Exception as e:
             logger.error(f"Failed to add plan to memory for session {session_id}: {e}", exc_info=True)
 
@@ -58,21 +58,21 @@ class Mem0Service:
             logger.error(f"Failed to retrieve memory for session {session_id}: {e}")
             return []
 
-    async def revert_to_turn(self, session_id: str, turn_id: str):
+    async def revert_to_turn(self, session_id: str, message_id: str):
         """
         【全新回滚逻辑】
-        删除指定 turn_id 之后的所有记忆。
+        删除指定 message_id 之后的所有记忆。
         """
-        logger.warning(f"Reverting memory for session {session_id} to turn {turn_id}")
+        logger.warning(f"Reverting memory for session {session_id} to turn {message_id}")
         try:
             all_memories = self._client.get_all(user_id=session_id, include_metadata=True)
             if not all_memories:
                 return
 
-            # 找到目标 turn_id 所在的记忆
+            # 找到目标 message_id 所在的记忆
             target_index = -1
             for i, mem in enumerate(all_memories):
-                if mem.get("metadata", {}).get("turn_id") == turn_id:
+                if mem.get("metadata", {}).get("message_id") == message_id:
                     target_index = i
                     break
 
@@ -83,12 +83,12 @@ class Mem0Service:
             ids_to_delete = [mem["id"] for i, mem in enumerate(all_memories) if i > target_index]
 
             if not ids_to_delete:
-                logger.info(f"No memories to delete after turn {turn_id}.")
+                logger.info(f"No memories to delete after turn {message_id}.")
                 return
 
             for mem_id in ids_to_delete:
                 self._client.delete(id=mem_id)
-            logger.warning(f"Successfully deleted {len(ids_to_delete)} memories after turn {turn_id}.")
+            logger.warning(f"Successfully deleted {len(ids_to_delete)} memories after turn {message_id}.")
 
         except Exception as e:
             logger.error(f"Failed to revert memory for session {session_id}: {e}", exc_info=True)

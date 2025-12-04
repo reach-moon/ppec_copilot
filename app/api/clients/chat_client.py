@@ -61,7 +61,7 @@ class ChatClient:
         """
         self.error_callback = callback
 
-    def send_message(self, message: str, turn_id: Optional[str] = None) -> None:
+    def send_message(self, message: str, message_id: Optional[str] = None) -> None:
         """
         Send a message to the chat API and process the streaming response.
 
@@ -73,8 +73,8 @@ class ChatClient:
             "session_id": self.session_id,
             "message": message
         }
-        if turn_id:
-            payload["turn_id"] = turn_id
+        if message_id:
+            payload["message_id"] = message_id
 
         # Add streaming headers
         headers = {
@@ -114,7 +114,7 @@ class ChatClient:
                             data = json.loads(data_str)
                             
                             # Handle different event types based on structure
-                            if 'summary' in data and 'turn_id' in data:
+                            if 'summary' in data and 'message_id' in data:
                                 # Final response event
                                 if self.final_response_callback:
                                     self.final_response_callback(data)
@@ -122,7 +122,7 @@ class ChatClient:
                                 # Plan update event
                                 if self.plan_update_callback:
                                     self.plan_update_callback(data)
-                            elif 'status' in data and 'turn_id' in data:
+                            elif 'status' in data and 'message_id' in data:
                                 # Step update event
                                 if self.step_update_callback:
                                     self.step_update_callback(data)
@@ -133,7 +133,7 @@ class ChatClient:
                         except json.JSONDecodeError:
                             print(f"Failed to decode JSON: {data_str}")
 
-    def send_message_sync(self, message: str, poll_interval: float = 0.1, turn_id: Optional[str] = None) -> dict:
+    def send_message_sync(self, message: str, poll_interval: float = 0.1, message_id: Optional[str] = None) -> dict:
         """
         Send a message and return only the final response.
         
@@ -149,8 +149,8 @@ class ChatClient:
             "session_id": self.session_id,
             "message": message
         }
-        if turn_id:
-            payload["turn_id"] = turn_id
+        if message_id:
+            payload["message_id"] = message_id
 
         response_data = {}
         
@@ -181,7 +181,7 @@ class ChatClient:
                             data = json.loads(data_str)
                             
                             # Capture final response
-                            if 'summary' in data and 'turn_id' in data:
+                            if 'summary' in data and 'message_id' in data:
                                 response_data = data
                         except json.JSONDecodeError:
                             print(f"Failed to decode JSON: {data_str}")
@@ -206,12 +206,12 @@ if __name__ == "__main__":
 
     def on_step_update(step_data):
         print("Step Update:")
-        print(f"Turn ID: {step_data['turn_id']}")
+        print(f"Turn ID: {step_data['message_id']}")
         print(f"Status: {step_data['status']}")
 
     def on_final_response(response_data):
         print("Final Response:")
-        print(f"Turn ID: {response_data['turn_id']}")
+        print(f"Turn ID: {response_data['message_id']}")
         print(f"Summary: {response_data['summary']}")
 
     def on_error(error_data):

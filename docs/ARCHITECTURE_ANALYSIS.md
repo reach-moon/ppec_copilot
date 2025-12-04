@@ -95,7 +95,7 @@ API 层采用 FastAPI 框架构建，提供 RESTful API 接口：
    - messages: 对话历史
 
 2. **Plan**: 执行计划定义
-   - turn_id: 回合标识（用于回滚）
+   - message_id: 回合标识（用于回滚）
    - goal: 用户目标
    - steps: 执行步骤列表
    - final_summary: 最终总结
